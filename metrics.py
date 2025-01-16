@@ -1,6 +1,7 @@
 import os
 import shutil
 
+import ipdb
 import torch
 import torchvision
 from pytorch_fid import fid_score
@@ -291,8 +292,8 @@ def evaluate_fid(
                         x_T=x_T,
                         x_start=imgs,
                         cond=None,
-                        sampler=sampler,
-                        latent_sampler=latent_sampler).cpu()
+                        sampler=sampler).cpu()
+                        # latent_sampler=latent_sampler).cpu()  # TODO: Removed this due to error: TypeError: render_condition() got an unexpected keyword argument 'latent_sampler'
                     # model: BeatGANsAutoencModel
                     # # returns {'cond', 'cond2'}
                     # conds = model.encode(imgs)

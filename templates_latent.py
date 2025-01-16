@@ -140,8 +140,11 @@ def celeba64d2c_autoenc_latent():
     conf = latent_mlp_2048_norm_10layers(conf)
     conf = adamw_weight_decay(conf)
     # just for the name
-    conf.continue_from = PretrainConfig('200M',
-                                        f'log-latent/{conf.name}/last.ckpt')
+    # TODO: Changed this!
+    # conf.continue_from = PretrainConfig('200M',
+    #                                     f'log-latent/{conf.name}/last.ckpt')
+    # conf.continue_from = PretrainConfig('200M',
+    #                                     f'checkpoints/{conf.name}/zdim-{conf.net_beatgans_embed_channels}/last.ckpt')
     conf.postfix = '_300M'
     conf.total_samples = 301_000_000
     conf.latent_beta_scheduler = 'const0.008'

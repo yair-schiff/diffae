@@ -18,7 +18,7 @@ def ddpm():
     conf.model_name = ModelName.beatgans_ddpm
     conf.net_attn = (16, )
     conf.net_beatgans_attn_head = 1
-    conf.net_beatgans_embed_channels = 512
+    conf.net_beatgans_embed_channels = 512  # TODO: 512
     conf.net_ch_mult = (1, 2, 4, 8)
     conf.net_ch = 64
     conf.sample_size = 32
@@ -45,7 +45,7 @@ def autoenc_base():
     conf.model_name = ModelName.beatgans_autoenc
     conf.net_attn = (16, )
     conf.net_beatgans_attn_head = 1
-    conf.net_beatgans_embed_channels = 512
+    conf.net_beatgans_embed_channels = 64  # TODO: 512
     conf.net_beatgans_resnet_two_cond = True
     conf.net_ch_mult = (1, 2, 4, 8)
     conf.net_ch = 64
@@ -242,11 +242,17 @@ def bedroom128_autoenc():
 
 def pretrain_celeba64d2c_72M():
     conf = celeba64d2c_autoenc()
+    # TODO: Changed this!
     conf.pretrain = PretrainConfig(
         name='72M',
-        path=f'checkpoints/{celeba64d2c_autoenc().name}/last.ckpt',
+        path=f'checkpoints/{celeba64d2c_autoenc().name}/zdim-{conf.net_beatgans_embed_channels}/last.ckpt',
     )
-    conf.latent_infer_path = f'checkpoints/{celeba64d2c_autoenc().name}/latent.pkl'
+    conf.latent_infer_path = f'checkpoints/{celeba64d2c_autoenc().name}/zdim-{conf.net_beatgans_embed_channels}/latent.pkl'
+    # conf.pretrain = PretrainConfig(
+    #     name='72M',
+    #     path=f'checkpoints/{celeba64d2c_autoenc().name}/last.ckpt',
+    # )
+    # conf.latent_infer_path = f'checkpoints/{celeba64d2c_autoenc().name}/latent.pkl'
     return conf
 
 

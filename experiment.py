@@ -3,6 +3,7 @@ import json
 import os
 import re
 
+import ipdb
 import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
@@ -11,7 +12,7 @@ from numpy.lib.function_base import flip
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import *
 from torch import nn
-from torch.cuda import amp
+# from torch.cuda import amp
 from torch.distributions import Categorical
 from torch.optim.optimizer import Optimizer
 from torch.utils.data.dataset import ConcatDataset, TensorDataset
@@ -340,11 +341,12 @@ class LitModel(pl.LightningModule):
                         cond = cond.flatten(0, 1)
 
                     conds.append(cond[argsort].cpu())
+                break
                 # break
         model.train()
         # (N, c) cpu
 
-        conds = torch.cat(conds).float()
+        conds = torch.cat(conds*len(loader)).float()
         return conds
 
     def training_step(self, batch, batch_idx):
@@ -690,7 +692,9 @@ class LitModel(pl.LightningModule):
                 print('infer ...')
                 conds = self.infer_whole_dataset().float()
                 # NOTE: always use this path for the latent.pkl files
-                save_path = f'checkpoints/{self.conf.name}/latent.pkl'
+                # TODO: Changed this
+                # save_path = f'checkpoints/{self.conf.name}/latent.pkl'
+                save_path = f'checkpoints/{self.conf.name}/zdim-{self.conf.net_beatgans_embed_channels}/latent.pkl'
             else:
                 raise NotImplementedError()
 
@@ -876,6 +880,7 @@ def is_time(num_samples, every, step_size):
 
 def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     print('conf:', conf.name)
+    print(conf)
     # assert not (conf.fp16 and conf.grad_clip > 0
     #             ), 'pytorch lightning has bug with amp + gradient clipping'
     model = LitModel(conf)
@@ -885,8 +890,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     checkpoint = ModelCheckpoint(dirpath=f'{conf.logdir}',
                                  save_last=True,
                                  save_top_k=1,
-                                 every_n_train_steps=conf.save_every_samples //
-                                 conf.batch_size_effective)
+                                 every_n_train_steps=1) #conf.save_every_samples // conf.batch_size_effective)
     checkpoint_path = f'{conf.logdir}/last.ckpt'
     print('ckpt path:', checkpoint_path)
     if os.path.exists(checkpoint_path):
@@ -898,7 +902,6 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
             resume = conf.continue_from.path
         else:
             resume = None
-
     tb_logger = pl_loggers.TensorBoardLogger(save_dir=conf.logdir,
                                              name=None,
                                              version='')
@@ -906,7 +909,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     # from pytorch_lightning.
 
     plugins = []
-    if len(gpus) == 1 and nodes == 1:
+    if gpus is None or (len(gpus) == 1 and nodes == 1):
         accelerator = None
     else:
         accelerator = 'ddp'
@@ -916,12 +919,12 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         plugins.append(DDPPlugin(find_unused_parameters=False))
 
     trainer = pl.Trainer(
-        max_steps=conf.total_samples // conf.batch_size_effective,
+        max_steps=1, #conf.total_samples // conf.batch_size_effective,
         resume_from_checkpoint=resume,
         gpus=gpus,
         num_nodes=nodes,
-        accelerator=accelerator,
-        precision=16 if conf.fp16 else 32,
+        # accelerator=accelerator,
+        # precision=16 if conf.fp16 else 32,
         callbacks=[
             checkpoint,
             LearningRateMonitor(),

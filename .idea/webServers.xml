@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="56b67dcc-c593-4f5c-a884-7b8c1d284fb9" name="diffae_g2">
+        <fileTransfer rootFolder="/share/kuleshov/yzs2" accessType="SFTP" host="localhost" port="6000" sshConfigId="0976c721-5136-40e6-9083-b810c8e2a1ee" sshConfig="yzs2@localhost:6000:22 agent" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

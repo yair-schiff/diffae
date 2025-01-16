@@ -103,8 +103,8 @@ class TrainConfig(BaseConfig):
     model_type: ModelType = None
     net_attn: Tuple[int] = None
     net_beatgans_attn_head: int = 1
-    # not necessarily the same as the the number of style channels
-    net_beatgans_embed_channels: int = 512
+    # not necessarily the same as the number of style channels
+    net_beatgans_embed_channels: int = 512  # TODO: 512
     net_resblock_updown: bool = True
     net_enc_use_time: bool = False
     net_enc_pool: str = 'adaptivenonzero'
@@ -145,7 +145,7 @@ class TrainConfig(BaseConfig):
     sample_size: int = 64
     sample_every_samples: int = 20_000
     save_every_samples: int = 100_000
-    style_ch: int = 512
+    style_ch: int = 64  # TODO: 512
     T_eval: int = 1_000
     T_sampler: str = 'uniform'
     T: int = 1_000
@@ -196,7 +196,9 @@ class TrainConfig(BaseConfig):
 
     @property
     def logdir(self):
-        return f'{self.base_dir}/{self.name}'
+        # TODO: Change this!
+        # return f'{self.base_dir}/{self.name}'
+        return f'{self.base_dir}/{self.name}/zdim-{self.net_beatgans_embed_channels}'
 
     @property
     def generate_dir(self):
